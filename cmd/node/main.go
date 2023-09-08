@@ -1,7 +1,7 @@
 /**
   @author: decision
   @date: 2023/9/7
-  @note:
+  @note: Simulate the node in DISOC
 **/
 
 package main
@@ -20,14 +20,17 @@ import (
 	"time"
 )
 
-var ()
-
 func main() {
 	loadConfig()
 
+	// Generate AES temporary secret key
 	key, err := crypto.GenerateRandomKey()
-	log.Infof("Generate temporary key: %s", key)
+	log.WithField("timestamp", time.Now().UnixMilli()).
+		Infoln("Node start require data on DON")
 
+	log.Infof("Generate temporary key: %s", hex.EncodeToString(key))
+
+	// Read totp secert key and interval from config
 	totpKey := config.String("source.totp")
 	interval := config.Int("source.interval")
 	if err != nil {
@@ -35,6 +38,7 @@ func main() {
 		return
 	}
 
+	// Encrypt AES key with public key of data source
 	encryptedKey, err := crypto.EncryptData(key, config.String("source.public"))
 	if err != nil {
 		log.WithError(err).Errorln("Encrypt temporary key failed.")
@@ -45,17 +49,20 @@ func main() {
 	epoch := totp.Int64ToBytes(epochSeconds / int64(interval))
 	tau, err := totp.GenTOTP(totpKey, epoch)
 
+	// Calculate digest of (encryptedKey, tau) by SHA-256
 	sha2 := sha256.New()
 	sha2.Write(encryptedKey)
 	sha2.Write(tau)
 	digest := sha2.Sum(nil)
 
+	// Calculate ring signature
 	rsign, err := RingSignature(digest)
 
 	if err != nil {
 		log.WithError(err).Errorln("Ring signature failed.")
 	}
 
+	// Create ethereum client with provider and contract address
 	client, err := ethereum.NewEthereumClient(
 		config.String("ethereum.provider"),
 		config.String("ethereum.contract"))
@@ -64,6 +71,7 @@ func main() {
 		return
 	}
 
+	// Send node request, the process of subsection 4.2
 	txHash, err := client.CallContractRequireData(encryptedKey, tau, rsign)
 	log.Infof("Transaction send time stamp: %d", time.Now().UnixMilli())
 	if err != nil {
@@ -75,6 +83,8 @@ func main() {
 		"timestamp":   time.Now().UnixMilli(),
 	}).Infoln("Transaction send.")
 
+	// Monitor contract address with encryptedKey
+	// the process of subsection 4.4
 	event, err := client.ListenContractEvent(encryptedKey, nil)
 	log.Infof("Receive event time stamp: %d", time.Now().UnixMilli())
 	if err != nil {
@@ -82,17 +92,20 @@ func main() {
 		return
 	}
 
-	log.Infof("Receive event: (%s, %s, %s)",
+	log.Infof("Receive event: (%s, %s, %s)\n",
 		hex.EncodeToString(event.EncryptedKey),
 		hex.EncodeToString(event.EncryptedData),
 		hex.EncodeToString(event.Signature))
 
+	// Decrypt data from event.EncryptedData
 	data, err := crypto.AESDecrypt(key, event.EncryptedData)
 	if err != nil {
 		log.WithError(err).Errorln("AES Decrypt failed.")
 		return
 	}
-	log.Infof("Receive data: %s", hex.EncodeToString(data))
+
+	log.WithField("timestamp", time.Now().UnixMilli()).
+		Infof("Receive data: %s\n", hex.EncodeToString(data))
 
 	verified, err := crypto.VerifySignature(data,
 		config.String("source.public"), event.Signature)
