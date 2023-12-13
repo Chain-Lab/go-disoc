@@ -32,33 +32,11 @@ var (
 // EthereumMetaData contains all meta data concerning the Ethereum contract.
 var EthereumMetaData = &bind.MetaData{
 	ABI: "[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"encryptedKey\",\"type\":\"bytes\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"tau\",\"type\":\"bytes\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"rSignature\",\"type\":\"bytes\"}],\"name\":\"dataRequest\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"encryptedData\",\"type\":\"bytes\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"encryptedKey\",\"type\":\"bytes\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"dataResponse\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"encryptedKey\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"tau\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"rSignature\",\"type\":\"bytes\"}],\"name\":\"requireOracleData\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"encryptedData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"encryptedKey\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"respondOracleData\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
-	Bin: "0x608060405234801561001057600080fd5b5061030e806100206000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c80631d07fbfd1461003b5780633899458914610057575b600080fd5b61005560048036038101906100509190610174565b610073565b005b610071600480360381019061006c9190610174565b6100bc565b005b7f55f6a9c9e937fcf2a23e13d208d4008e5baf112e5703f1956a9cf8cb9e4ea46e8686868686866040516100ac96959493929190610286565b60405180910390a1505050505050565b7f723a51d62591fc948ca09f58283b246c6c40e4c8c897a7e462330e654d582d778686868686866040516100f596959493929190610286565b60405180910390a1505050505050565b600080fd5b600080fd5b600080fd5b600080fd5b600080fd5b60008083601f8401126101345761013361010f565b5b8235905067ffffffffffffffff81111561015157610150610114565b5b60208301915083600182028301111561016d5761016c610119565b5b9250929050565b6000806000806000806060878903121561019157610190610105565b5b600087013567ffffffffffffffff8111156101af576101ae61010a565b5b6101bb89828a0161011e565b9650965050602087013567ffffffffffffffff8111156101de576101dd61010a565b5b6101ea89828a0161011e565b9450945050604087013567ffffffffffffffff81111561020d5761020c61010a565b5b61021989828a0161011e565b92509250509295509295509295565b600082825260208201905092915050565b82818337600083830152505050565b6000601f19601f8301169050919050565b60006102658385610228565b9350610272838584610239565b61027b83610248565b840190509392505050565b600060608201905081810360008301526102a181888a610259565b905081810360208301526102b6818688610259565b905081810360408301526102cb818486610259565b905097965050505050505056fea2646970667358221220a50ed5eb59923450212ea82ecbc79f7ca892cd73e6f646508960e512e74b517864736f6c63430008110033",
 }
 
 // EthereumABI is the input ABI used to generate the binding from.
 // Deprecated: Use EthereumMetaData.ABI instead.
 var EthereumABI = EthereumMetaData.ABI
-
-// EthereumBin is the compiled bytecode used for deploying new contracts.
-// Deprecated: Use EthereumMetaData.Bin instead.
-var EthereumBin = EthereumMetaData.Bin
-
-// DeployEthereum deploys a new Ethereum contract, binding an instance of Ethereum to it.
-func DeployEthereum(auth *bind.TransactOpts, backend bind.ContractBackend) (common.Address, *types.Transaction, *Ethereum, error) {
-	parsed, err := EthereumMetaData.GetAbi()
-	if err != nil {
-		return common.Address{}, nil, nil, err
-	}
-	if parsed == nil {
-		return common.Address{}, nil, nil, errors.New("GetABI returned nil")
-	}
-
-	address, tx, contract, err := bind.DeployContract(auth, *parsed, common.FromHex(EthereumBin), backend)
-	if err != nil {
-		return common.Address{}, nil, nil, err
-	}
-	return address, tx, &Ethereum{EthereumCaller: EthereumCaller{contract: contract}, EthereumTransactor: EthereumTransactor{contract: contract}, EthereumFilterer: EthereumFilterer{contract: contract}}, nil
-}
 
 // Ethereum is an auto generated Go binding around an Ethereum contract.
 type Ethereum struct {

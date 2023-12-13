@@ -75,7 +75,8 @@ func (c *Client) CallContractRequireData(encryptedKey, tau,
 	}
 
 	// Obtain network suggest gas price
-	gasPrice, err := c.w3Client.SuggestGasPrice(context.Background())
+	//gasPrice, err := c.w3Client.SuggestGasPrice(context.Background())
+	gasPrice := big.NewInt(10_000_000_000)
 
 	if err != nil {
 		return nil, fmt.Errorf("get network suggest fee failed")
@@ -88,6 +89,7 @@ func (c *Client) CallContractRequireData(encryptedKey, tau,
 	}
 
 	auth.Nonce = big.NewInt(int64(nonce))
+	//auth.Nonce = big.NewInt(int64(2))
 	auth.Value = big.NewInt(0)
 	auth.GasLimit = uint64(300_000)
 	auth.GasPrice = gasPrice
@@ -103,7 +105,7 @@ func (c *Client) CallContractRequireData(encryptedKey, tau,
 		rSignature)
 
 	if err != nil {
-		return nil, fmt.Errorf("send transaction failed")
+		return nil, fmt.Errorf("send transaction failed with error: %s", err)
 	}
 
 	txHash := transaction.Hash().String()
@@ -136,7 +138,8 @@ func (c *Client) CallContractResponseData(encryptedKey, encryptedData,
 	}
 
 	// Obtain network suggest gas price
-	gasPrice, err := c.w3Client.SuggestGasPrice(context.Background())
+	//gasPrice, err := c.w3Client.SuggestGasPrice(context.Background())
+	gasPrice := big.NewInt(10_000_000_000)
 
 	if err != nil {
 		return nil, fmt.Errorf("get network suggest fee failed")
@@ -247,7 +250,7 @@ func (c *Client) OracleListenContractEvent(
 
 			if err != nil {
 				log.WithError(err).Errorln(
-					"Parse event to respond struct failed.")
+					"Parse event to request struct failed.")
 				continue
 			}
 
