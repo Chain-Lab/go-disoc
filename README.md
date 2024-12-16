@@ -1,6 +1,6 @@
 # go-disoc
  
-The experiment program for DISOC, structure of the repository is as follows:
+The experiment program for [DISOC](https://ieeexplore.ieee.org/abstract/document/10438405/), structure of the repository is as follows:
 
 ```
 ├─cmd
